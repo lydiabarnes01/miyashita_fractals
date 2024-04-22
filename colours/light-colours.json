@@ -1,0 +1,4 @@
+[{"colorId":0,"hexString":"#ff7f66","rgb":{"r":255,"g":127,"b":102},"hsl":{"h":10,"s":100,"l":70},"name":"red"},
+{"colorId":2,"hexString":"#9f6","rgb":{"r":153,"g":225,"b":102},"hsl":{"h":100,"s":100,"l":70},"name":"green"},
+{"colorId":5,"hexString":"#66e5ff","rgb":{"r":102,"g":229,"b":255},"hsl":{"h":190,"s":100,"l":70},"name":"blue"},
+{"colorId":6,"hexString":"#c6f","rgb":{"r":204,"g":102,"b":255},"hsl":{"h":280,"s":100,"l":70},"name":"purple"}]

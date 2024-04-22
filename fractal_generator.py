@@ -3,6 +3,15 @@ Basic Fractal Generator based on the stimuli used in
 Miyashita, Y. (1988). Neuronal correlate of visual associative long-term memory in the primate temporal cortex. Nature, 335(6193), 817-820.
 
 reimplemented in python with PIL
+
+lydia barnes, april 2024
+modifying miyashita approach to produce specific classes of stimuli varying on
+    1. recursive depth
+    2. colour
+    3. edges
+miyashita randomised these to produce a varied stimulus set. we want to control
+the proportions of stimuli in each class, and record the classes. we also want 
+to lock stimulus size, unless we start to re-introduce superpositions.
 """
 
 
@@ -18,14 +27,13 @@ import argparse
 # Parse Constants from the Command Line
 parser = argparse.ArgumentParser(
             description='Fractal generator akin to (Miyashita, 1988)')
-parser.add_argument('--imgsize', '-imgsize', type=int, nargs='?', default=512)
+parser.add_argument('--imgsize', '-imgsize', type=int, nargs='?', default=1024)
 parser.add_argument('--stimuli', '-stim', type=int, nargs='?', default=100)
-parser.add_argument('--min_edges', '-minedg', type=int, nargs='?', default=2)
-parser.add_argument('--max_edges', '-maxedg', type=int, nargs='?', default=6)
-parser.add_argument('--min_recursion', '-minrec', type=int, nargs='?', default=2)
-parser.add_argument('--max_recursion', '-maxrec', type=int, nargs='?', default=5)
-
-
+parser.add_argument('--min_edges', '-minedg', type=int, nargs='?', default=3)
+parser.add_argument('--max_edges', '-maxedg', type=int, nargs='?', default=4)
+parser.add_argument('--min_recursion', '-minrec', type=int, nargs='?', default=3)
+parser.add_argument('--max_recursion', '-maxrec', type=int, nargs='?', default=4)
+parser.add_argument('--use_light_background', '-lightbg', type=int, nargs='?', default=0)
 
 args = parser.parse_args()
 
@@ -35,7 +43,7 @@ SUPERPOSITIONS = 3
 MIN_EDGES, MAX_EDGES = args.min_edges, args.max_edges
 MIN_RECURSION, MAX_RECURSION = args.min_recursion, args.max_recursion
 MIN_G_FACTOR, MAX_G_FACTOR = -IMG_H//5, IMG_H//5
-
+use_light_background = args.use_light_background
 
 def outer_radius_from_edge(n_edges, edge_length):
     outer_radius = 0.5 * (1/math.sin(math.pi/n_edges) * float(edge_length)) # outer radius, i.e 2*90
@@ -132,6 +140,42 @@ def deflect_the_midpoint_of_each_edge(xy):
 
 
 if __name__ == "__main__":
+    # load colours
+    if use_light_background == 1: #light background, dark foreground colours
+        canvas_colour = (255,255,255,0)
+        f = open('./colours/dark-colours.json')
+    else:
+        canvas_colour = (0,0,0,0)
+        f = open('./colours/light-colours.json')
+    colordefinition = json.load(f)
+
+    # seed the random number generator
+    np.random.seed(12345)
+
+    for colour in range(len(colordefinition)):
+        for edge in range(MIN_EDGES,MAX_EDGES+1):
+            for recursion in range(MIN_RECURSION,MAX_RECURSION+1):
+                
+                # make image
+                canvas = Image.new("RGBA", (IMG_H,IMG_W), canvas_colour) 
+                xy_polygon = create_shape_from_edges(edge, IMG_W//4)
+                for rec in range(recursion):
+                    xy_polygon = deflect_the_midpoint_of_each_edge(xy_polygon)
+                color = get_color_from_number(colour, colordefinition)
+                draw_shape_from_xy(xy_polygon, canvas, color)    
+    
+                # auto-crop
+                imageBox = canvas.getbbox()
+                canvas = canvas.crop(imageBox)
+
+                # resize
+                canvas = canvas.resize((IMG_H//2,IMG_W//2))
+
+                #   save image
+                canvas.save('./img/{}-{}edges-{}recursions.png'.format(colordefinition[colour]['name'],edge,recursion))
+
+'''
+if __name__ == "__main__":
     # RGB colors
     f = open('256rgb.json')
     colordefinition = json.load(f)
@@ -153,16 +197,17 @@ if __name__ == "__main__":
             edge_size = np.random.randint(IMG_W//16, IMG_W//2)
 
             # Get the Polygon
-            xy_poligon = create_shape_from_edges(n_edges, edge_size)
+            xy_polygon = create_shape_from_edges(n_edges, edge_size)
             # Get the depth of recursion
             n_recursions = np.random.randint(MIN_RECURSION, MAX_RECURSION+1)
             # FOR LOOP
             for rec in range(n_recursions):
-                xy_poligon = deflect_the_midpoint_of_each_edge(xy_poligon)
+                xy_polygon = deflect_the_midpoint_of_each_edge(xy_polygon)
 
             # Get the color
             color = get_color_from_number(np.random.randint(0,256), colordefinition)
             # Draw on canvas
-            draw_shape_from_xy(xy_poligon, canvas, color)    
+            draw_shape_from_xy(xy_polygon, canvas, color)    
     
         canvas.save('./imgs/{}.png'.format(stim))
+'''
