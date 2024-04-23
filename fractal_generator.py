@@ -21,19 +21,19 @@ import math
 from PIL import Image, ImageDraw
 from PIL import ImagePath 
 import argparse
-
+import colorsys
 
 
 # Parse Constants from the Command Line
 parser = argparse.ArgumentParser(
             description='Fractal generator akin to (Miyashita, 1988)')
 parser.add_argument('--imgsize', '-imgsize', type=int, nargs='?', default=1024)
-parser.add_argument('--stimuli', '-stim', type=int, nargs='?', default=100)
+parser.add_argument('--stimuli', '-stim', type=int, nargs='?', default=10)
 parser.add_argument('--min_edges', '-minedg', type=int, nargs='?', default=3)
 parser.add_argument('--max_edges', '-maxedg', type=int, nargs='?', default=4)
 parser.add_argument('--min_recursion', '-minrec', type=int, nargs='?', default=3)
-parser.add_argument('--max_recursion', '-maxrec', type=int, nargs='?', default=4)
-parser.add_argument('--use_light_background', '-lightbg', type=int, nargs='?', default=0)
+parser.add_argument('--max_recursion', '-maxrec', type=int, nargs='?', default=3)
+parser.add_argument('--use_light_background', '-lightbg', type=int, nargs='?', default=1)
 
 args = parser.parse_args()
 
@@ -51,15 +51,21 @@ def outer_radius_from_edge(n_edges, edge_length):
 
 
 def get_color_from_number(number, colordefinition):
-    color = colordefinition[number]['hexString']
+    color = colordefinition[number]['hsv']
     return color
 
 def create_shape_from_edges(n_edges=3, edge_length=500, color="#eeeeff"):
     pass
+
+    if n_edges==3:
+        rotate = .25*math.pi
+    else:
+        rotate = 0
+
     xy = [
         ((math.cos(th) + 1) * outer_radius_from_edge(n_edges, edge_length),
          (math.sin(th) + 1) * outer_radius_from_edge(n_edges, edge_length))
-        for th in [i * (2 * math.pi) / n_edges for i in range(n_edges)]
+        for th in [(i * (2 * math.pi) / n_edges)+rotate for i in range(n_edges)]
         ]  
   
     # center shape
@@ -155,24 +161,43 @@ if __name__ == "__main__":
     for colour in range(len(colordefinition)):
         for edge in range(MIN_EDGES,MAX_EDGES+1):
             for recursion in range(MIN_RECURSION,MAX_RECURSION+1):
+                for stimulus in range(N_STIMULI):
                 
-                # make image
-                canvas = Image.new("RGBA", (IMG_H,IMG_W), canvas_colour) 
-                xy_polygon = create_shape_from_edges(edge, IMG_W//4)
-                for rec in range(recursion):
-                    xy_polygon = deflect_the_midpoint_of_each_edge(xy_polygon)
-                color = get_color_from_number(colour, colordefinition)
-                draw_shape_from_xy(xy_polygon, canvas, color)    
-    
-                # auto-crop
-                imageBox = canvas.getbbox()
-                canvas = canvas.crop(imageBox)
+                    # make image
+                    canvas = Image.new("RGBA", (IMG_H,IMG_W), canvas_colour) 
 
-                # resize
-                canvas = canvas.resize((IMG_H//2,IMG_W//2))
+                    xy_polygon = create_shape_from_edges(edge, IMG_W//4)
+                    for rec in range(recursion):
+                        xy_polygon = deflect_the_midpoint_of_each_edge(xy_polygon)
+                    
+                    #   get color
+                    color = get_color_from_number(colour, colordefinition)
+                    hsv = np.asarray((color['h'],color['s'],color['v']))
 
-                #   save image
-                canvas.save('./img/{}-{}edges-{}recursions.png'.format(colordefinition[colour]['name'],edge,recursion))
+                    #   shift hue up or down 
+                    hsv[0] = (hsv[0] + np.random.normal(0,5)) % 360
+
+                    #   rescale to 0,1
+                    hsv = np.asarray(( np.interp(hsv[0], (0, 360), (0, 1)), np.interp(hsv[1], (0, 100), (0, 1)), np.interp(hsv[2], (0, 100), (0, 1)) ))
+
+                    #   get rgb
+                    rgb = colorsys.hsv_to_rgb(hsv[0],hsv[1],hsv[2])
+                    rgb = np.interp(rgb,(0,1),(0,255))
+                    rgb = rgb.astype(int)
+                    rgb = (rgb[0],rgb[1],rgb[2])
+
+                    draw_shape_from_xy(xy_polygon, canvas, rgb)    
+        
+                    # auto-crop
+                    imageBox = canvas.getbbox()
+                    canvas = canvas.crop(imageBox)
+
+                    # resize
+                    canvas = canvas.resize((IMG_H//2,IMG_W//2))
+
+                    #   save image
+                    canvas.save('./img/{}-{}-{}edges-{}recursions.png'.format(stimulus,colordefinition[colour]['name'],edge,recursion))
+
 
 '''
 if __name__ == "__main__":

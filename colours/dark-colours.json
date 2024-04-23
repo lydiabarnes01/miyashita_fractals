@@ -1,4 +1,2 @@
-[{"colorId":0,"hexString":"#c20","rgb":{"r":204,"g":34,"b":0},"hsl":{"h":10,"s":100,"l":40},"name":"red"},
-{"colorId":2,"hexString":"#4c0","rgb":{"r":68,"g":204,"b":0},"hsl":{"h":100,"s":100,"l":40},"name":"green"},
-{"colorId":5,"hexString":"#0ac","rgb":{"r":0,"g":170,"b":204},"hsl":{"h":190,"s":100,"l":40},"name":"blue"},
-{"colorId":6,"hexString":"#80c","rgb":{"r":136,"g":0,"b":204},"hsl":{"h":280,"s":100,"l":40},"name":"purple"}]
+[{"colorId":0,"hexString":"#c20","rgb":{"r":204,"g":34,"b":0},"hsv":{"h":10,"s":100,"v":80},"name":"red"},
+{"colorId":5,"hexString":"#0ac","rgb":{"r":0,"g":170,"b":204},"hsv":{"h":190,"s":100,"v":80},"name":"blue"}]
