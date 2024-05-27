@@ -28,11 +28,11 @@ import colorsys
 parser = argparse.ArgumentParser(
             description='Fractal generator akin to (Miyashita, 1988)')
 parser.add_argument('--imgsize', '-imgsize', type=int, nargs='?', default=1024)
-parser.add_argument('--stimuli', '-stim', type=int, nargs='?', default=10)
+parser.add_argument('--stimuli', '-stim', type=int, nargs='?', default=100)
 parser.add_argument('--min_edges', '-minedg', type=int, nargs='?', default=3)
-parser.add_argument('--max_edges', '-maxedg', type=int, nargs='?', default=4)
-parser.add_argument('--min_recursion', '-minrec', type=int, nargs='?', default=3)
-parser.add_argument('--max_recursion', '-maxrec', type=int, nargs='?', default=3)
+parser.add_argument('--max_edges', '-maxedg', type=int, nargs='?', default=5)
+parser.add_argument('--min_recursion', '-minrec', type=int, nargs='?', default=5)
+parser.add_argument('--max_recursion', '-maxrec', type=int, nargs='?', default=5)
 parser.add_argument('--use_light_background', '-lightbg', type=int, nargs='?', default=1)
 
 args = parser.parse_args()
@@ -54,13 +54,8 @@ def get_color_from_number(number, colordefinition):
     color = colordefinition[number]['hsv']
     return color
 
-def create_shape_from_edges(n_edges=3, edge_length=500, color="#eeeeff"):
+def create_shape_from_edges(n_edges=3, edge_length=500, rotate=0):
     pass
-
-    if n_edges==3:
-        rotate = .25*math.pi
-    else:
-        rotate = 0
 
     xy = [
         ((math.cos(th) + 1) * outer_radius_from_edge(n_edges, edge_length),
@@ -193,10 +188,16 @@ if __name__ == "__main__":
                     canvas = canvas.crop(imageBox)
 
                     # resize
-                    canvas = canvas.resize((IMG_H//2,IMG_W//2))
+                    (w,h) = canvas.size
+                    width = np.max([w,h]); height = width
+                    xbuffer = int(np.round((width-w)/2)); ybuffer = int(np.round((height-h)/2))
+
+                    resized = Image.new("RGBA", (width, height), canvas_colour)
+                    resized.paste(canvas,(xbuffer,ybuffer))
+                    resized = resized.resize((IMG_H//2,IMG_W//2))
 
                     #   save image
-                    canvas.save('./img/{}-{}-{}edges-{}recursions.png'.format(stimulus,colordefinition[colour]['name'],edge,recursion))
+                    resized.save('./img/{}-{}-{}edges-{}recursions.png'.format(stimulus,colordefinition[colour]['name'],edge,recursion))
 
 
 '''
