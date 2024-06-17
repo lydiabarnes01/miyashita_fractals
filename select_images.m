@@ -11,7 +11,8 @@ for i = 1:size(in,1)
     fnl = fullfile(im_path,in(i).name);
 
     im = imread(fnl);
-    imshow(im);
+    imshow(im); title(fnl);
+
     keys = input("reject? (0 = keep, 1 = discard): ",'s'); 
     reject = str2double(keys);
 
