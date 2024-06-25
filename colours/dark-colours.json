@@ -1,3 +1,3 @@
-[{"colorId":0,"hexString":"#cc2200","rgb":{"r":204,"g":34,"b":0},"hsv":{"h":10,"s":100,"v":80},"name":"red"},
-{"colorId":5,"hexString":"#cc8800","rgb":{"r":204,"g":136,"b":0},"hsv":{"h":40,"s":100,"v":80},"name":"gold"},
-{"colorId":5,"hexString":"#00aacc","rgb":{"r":0,"g":170,"b":204},"hsv":{"h":190,"s":100,"v":80},"name":"blue"}]
+[{"colorId":0,"hexString":"#00cc88","rgb":{"r":0,"g":204,"b":136},"hsv":{"h":160,"s":100,"v":80},"name":"green"},
+{"colorId":1,"hexString":"#00aacc","rgb":{"r":0,"g":170,"b":204},"hsv":{"h":190,"s":100,"v":80},"name":"teal"},
+{"colorId":2,"hexString":"#0044cc","rgb":{"r":0,"g":68,"b":204},"hsv":{"h":220,"s":100,"v":80},"name":"blue"}]

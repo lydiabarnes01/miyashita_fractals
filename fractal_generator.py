@@ -28,7 +28,7 @@ import colorsys
 parser = argparse.ArgumentParser(
             description='Fractal generator akin to (Miyashita, 1988)')
 parser.add_argument('--imgsize', '-imgsize', type=int, nargs='?', default=1024)
-parser.add_argument('--stimuli', '-stim', type=int, nargs='?', default=100)
+parser.add_argument('--stimuli', '-stim', type=int, nargs='?', default=200)
 parser.add_argument('--min_edges', '-minedg', type=int, nargs='?', default=3)
 parser.add_argument('--max_edges', '-maxedg', type=int, nargs='?', default=5)
 parser.add_argument('--min_recursion', '-minrec', type=int, nargs='?', default=2)
@@ -158,10 +158,17 @@ if __name__ == "__main__":
             for recursion in range(MIN_RECURSION,MAX_RECURSION+1):
                 for stimulus in range(N_STIMULI):
                 
-                    # make image
+                    # make canvas
                     canvas = Image.new("RGBA", (IMG_H,IMG_W), canvas_colour) 
 
-                    xy_polygon = create_shape_from_edges(edge, IMG_W//4)
+                    # rotate triangles and polygons so that they sit flat against the base of the canvas
+                    if edge == 4:
+                        rotate = math.pi*.75
+                    else:
+                        rotate = math.pi/2
+
+                    # make image    
+                    xy_polygon = create_shape_from_edges(edge, IMG_W//4, rotate=rotate)
                     for rec in range(recursion):
                         xy_polygon = deflect_the_midpoint_of_each_edge(xy_polygon)
                     
